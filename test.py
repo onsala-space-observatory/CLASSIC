@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 import classic
 
@@ -23,3 +24,10 @@ print(data)
 # attributes
 print(foo.filename)
 print(foo.count)
+
+headers = []
+for i in range(nscans):
+    headers.append(foo.getHead(i+1))
+
+df = pd.DataFrame(headers)
+print(df)

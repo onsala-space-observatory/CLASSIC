@@ -24,7 +24,7 @@ static PyObject* getDirectory(Reader* self)
     int nscans = 0;
     if (self->reader) {
         ClassReader *reader = self->reader;
-        int nscans = reader->getDirectory();
+        nscans = reader->getDirectory();
         self->count = nscans;
     }
     return Py_BuildValue("i", nscans);
@@ -40,10 +40,9 @@ static PyObject* getHead(Reader* self, PyObject *args)
         return NULL;
     }
     if (self->reader) {
-        printf("get header of spectrum %d\n", iscan);
         ClassReader *reader = self->reader;
         SpectrumHeader S = reader->getHead(iscan);
-        S.print();
+        // S.print();
         static char fmt[] = "0000-00-00 00:00:00"; // %Y-%m-%d %H:%M:%S
         strftime(fmt, sizeof(fmt), "%Y-%m-%d %H:%M:%S", gmtime(&S.utc));
 
@@ -161,7 +160,7 @@ static int Reader_init(Reader *self, PyObject *args, PyObject *kwds)
         self->count = 0;
     }
     const char *name = PyUnicode_AsUTF8(self->filename);
-    printf("got filename: '%s'\n", name);
+    // printf("got filename: '%s'\n", name);
     struct stat buffer;
     if (stat(name, &buffer) == 0) self->reader = openClassFile(name);
     else                          self->reader = 0;
