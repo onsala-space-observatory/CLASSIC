@@ -103,15 +103,15 @@ static PyObject* getData(Reader* self, PyObject *args)
     }
     if (self->reader) {
         ClassReader *reader = self->reader;
-        std::vector<double> f = reader->getData(iscan);
+        std::vector<double> d = reader->getData(iscan);
         PyObject *array;
 
         long int dims[] = { 0 };
-        dims[0] = f.size();
+        dims[0] = d.size();
         array = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
         double *data = (double *)PyArray_GETPTR1((PyArrayObject *)array, 0);
         for (int i = 0; i < dims[0]; i++) {
-            data[i] = f[i];
+            data[i] = d[i];
         }
         return array;
     }
