@@ -14,7 +14,6 @@
 
 typedef struct {
     PyObject_HEAD
-    //    FILE *fp;
     ClassReader *reader;
     PyObject *filename;
     int count;
@@ -168,7 +167,7 @@ static PyMethodDef Reader_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyTypeObject class_Type = {
+static PyTypeObject ClassicReaderType = {
     PyObject_HEAD_INIT(NULL)
     "classic.Reader",          /* tp_name */
     sizeof(Reader),            /* tp_basicsize */
@@ -294,7 +293,7 @@ static PyMethodDef classicMethods[] = {
 
 static struct PyModuleDef classic = {
     PyModuleDef_HEAD_INIT,
-    "classic",              // name of module.
+    "classic",                                  // name of module.
     "Interface to CLASSIC data container",      // doc string
     -1,
     classicMethods
@@ -303,15 +302,13 @@ static struct PyModuleDef classic = {
 PyMODINIT_FUNC PyInit_classic(void)
 {
     import_array();
-    class_Type.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&class_Type) < 0) return NULL;
+    ClassicReaderType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&ClassicReaderType) < 0) return NULL;
 
     PyObject *m = PyModule_Create(&classic);
     if (m == NULL) return NULL;
 
-    Py_INCREF(&class_Type);
-    PyModule_AddObject(m, "Reader", (PyObject *)&class_Type);
+    Py_INCREF(&ClassicReaderType);
+    PyModule_AddObject(m, "Reader", (PyObject *)&ClassicReaderType);
     return m;
-
-    // return PyModule_Create(&classic);
 }
