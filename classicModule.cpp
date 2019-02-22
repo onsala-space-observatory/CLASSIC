@@ -44,6 +44,24 @@ static PyObject* getHead(Reader* self, PyObject *args)
         ClassReader *reader = self->reader;
         SpectrumHeader S = reader->getHead(iscan);
         S.print();
+        static char fmt[] = "0000-00-00 00:00:00"; // %Y-%m-%d %H:%M:%S
+        strftime(fmt, sizeof(fmt), "%Y-%m-%d %H:%M:%S", gmtime(&S.utc));
+
+        return Py_BuildValue("{s:i,s:i,s:s,s:s,s:s,s:d,s:d,s:d,s:d,s:d,s:d,s:d,s:d,s:s}",
+                             "id", S.id,
+                             "scanno", S.scanno,
+                             "target", S.target,
+                             "line", S.line,
+                             "instr", S.instr,
+                             "RA", S.RA,
+                             "Dec", S.Dec,
+                             "fLO", S.fLO,
+                             "f0", S.f0,
+                             "df", S.df,
+                             "vs", S.vs,
+                             "dt", S.dt,
+                             "tsys", S.tsys,
+                             "utc", fmt);
     }
     Py_RETURN_NONE;
 }
@@ -277,7 +295,7 @@ static PyObject* py_sarray(PyObject* self)
 
 static PyObject* py_version(PyObject* self)
 {
-    PyObject *version = Py_BuildValue("s", "Version 0.1");
+    PyObject *version = Py_BuildValue("s", "Version 0.2");
     return version;
 }
 

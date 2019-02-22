@@ -10,9 +10,15 @@ print(foo.__doc__)
 nscans = foo.getDirectory()
 print("number of spectra = %d" % (nscans))
 iscan = 1
-print(foo.getHead(iscan))
-print(foo.getFreq(iscan))
-print(foo.getData(iscan))
+header = foo.getHead(iscan)
+print(header.__class__)
+print(header)
+
+freq = foo.getFreq(iscan)
+print(freq)
+
+data = foo.getData(iscan)
+print(data)
 
 # attributes
 print(foo.filename)
