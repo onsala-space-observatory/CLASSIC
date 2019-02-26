@@ -32,6 +32,8 @@ static PyObject* getDirectory(Reader* self)
 
 static PyObject* getHead(Reader* self, PyObject *args)
 {
+    static char fmt[] = "0000-00-00 00:00:00"; // %Y-%m-%d %H:%M:%S
+
     int iscan = 1;
     if (!PyArg_ParseTuple(args, "i:getHead", &iscan)) return NULL;
 
@@ -42,8 +44,6 @@ static PyObject* getHead(Reader* self, PyObject *args)
     if (self->reader) {
         ClassReader *reader = self->reader;
         SpectrumHeader S = reader->getHead(iscan);
-        // S.print();
-        static char fmt[] = "0000-00-00 00:00:00"; // %Y-%m-%d %H:%M:%S
         strftime(fmt, sizeof(fmt), "%Y-%m-%d %H:%M:%S", gmtime(&S.utc));
 
         return Py_BuildValue("{s:i,s:i,s:s,s:s,s:s,s:d,s:d,s:d,s:d,s:d,s:d,s:d,s:d,s:s}",
@@ -160,7 +160,6 @@ static int Reader_init(Reader *self, PyObject *args, PyObject *kwds)
         self->count = 0;
     }
     const char *name = PyUnicode_AsUTF8(self->filename);
-    // printf("got filename: '%s'\n", name);
     struct stat buffer;
     if (stat(name, &buffer) == 0) self->reader = openClassFile(name);
     else                          self->reader = 0;
@@ -206,12 +205,12 @@ static PyTypeObject ClassicReaderType = {
     0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,        /* tp_flags */
     "CLASSIC file reader object", /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
     Reader_methods,            /* tp_methods */
     Reader_members,            /* tp_members */
     0,                         /* tp_getset */
@@ -222,7 +221,7 @@ static PyTypeObject ClassicReaderType = {
     0,                         /* tp_dictoffset */
     (initproc)Reader_init,     /* tp_init */
     0,                         /* tp_alloc */
-    // Reader_new,                /* tp_new */
+    Reader_new,                /* tp_new */
 };
 
 static PyObject* py_iarray(PyObject* self)
@@ -299,18 +298,17 @@ static PyObject* py_version(PyObject* self)
 }
 
 static PyMethodDef classicMethods[] = {
-    {"newReader", (PyCFunction)Reader_new, METH_VARARGS, "open CLASSIC file" },
-    {"intarray", (PyCFunction)py_iarray, METH_NOARGS, "Build integer array from scratch."},
-    {"logarray", (PyCFunction)py_barray, METH_NOARGS, "Build boolean array from scratch."},
-    {"dblarray", (PyCFunction)py_darray, METH_NOARGS, "Build double array from scratch."},
-    {"strarray", (PyCFunction)py_sarray, METH_NOARGS, "Build string array from scratch."},
-    {"version",  (PyCFunction)py_version, METH_NOARGS, "Returns the version."},
+//     {"intarray",  (PyCFunction)py_iarray,  METH_NOARGS,  "Build integer array from scratch."},
+//     {"logarray",  (PyCFunction)py_barray,  METH_NOARGS,  "Build boolean array from scratch."},
+//     {"dblarray",  (PyCFunction)py_darray,  METH_NOARGS,  "Build double array from scratch."},
+//     {"strarray",  (PyCFunction)py_sarray,  METH_NOARGS,  "Build string array from scratch."},
+    {"version",   (PyCFunction)py_version, METH_NOARGS,  "Returns the version."},
     {NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef classic = {
     PyModuleDef_HEAD_INIT,
-    "classic",                                  // name of module.
+    "classic",                                  // name of module
     "Interface to CLASSIC data container",      // doc string
     -1,
     classicMethods
@@ -319,7 +317,6 @@ static struct PyModuleDef classic = {
 PyMODINIT_FUNC PyInit_classic(void)
 {
     import_array();
-    ClassicReaderType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&ClassicReaderType) < 0) return NULL;
 
     PyObject *m = PyModule_Create(&classic);
