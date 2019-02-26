@@ -42,29 +42,6 @@ int fileType(const char *cfname)
     return 0;
 }
 
-int qcmp(const void *x, const void *y) {
-    int res = strcmp(((SORT *)x)->value, ((SORT *)y)->value);
-    if (res != 0)
-        return res;
-    else
-        // they are equal - use original position as tie breaker
-        return (((SORT *)x)->origpos - ((SORT *)y)->origpos);
-}
-
-//' Get header information from a GILDAS/CLASS single dish data file
-//'
-//' Given a filename, open the file and scan it for single dish spectra
-//' or continuum scans. A data frame is returned where each row corresponds
-//' to the header information of one scan in the file.
-//' @param filename name of the GILDAS/CLASS file including path to be opened
-//' @return data frame with n rows, where n is the number of scans found
-//' @examples
-//' filename = "mydata.apex"
-//' H <- getClassHeader(filename)
-//' print(H)           # print the resulting data frame
-//' print(summary(H))  # print a summary
-//' @export
-// [[Rcpp::export]]
 ClassReader *openClassFile(const char *cfname)
 {
     ClassReader *reader = 0;
@@ -89,50 +66,6 @@ ClassReader *openClassFile(const char *cfname)
 
     return reader;
 }
-
-/*
-std::vector<SpectrumHeader> getClassHeader(const char *cfname)
-{
-    ClassReader *reader = 0;
-    std::vector<SpectrumHeader> shv;
-
-    int type = fileType(cfname);
-    if (type == -1) {
-        fprintf(stderr, "failed to open file '%s'\n", cfname);
-        return shv;
-    }
-    if (type == -2) {
-        fprintf(stderr, "failed to determine file type of '%s'\n", cfname);
-        return shv;
-    }
-
-    if ((type != 1) && (type != 2)) {
-        fprintf(stderr, "unrecognized file type!\n");
-        return shv;
-    }
-
-    if (type == 1) reader = new Type1Reader(cfname);
-    if (type == 2) reader = new Type2Reader(cfname);
-
-    reader->open();
-    reader->getFileDescriptor();
-
-    int nscans = reader->getDirectory();
-    shv.reserve(nscans);
-    // #ifdef DEBUG
-    //     printf("%s: number of scans: %d\n", __FUNCTION__, nscans);
-    // #endif
-
-    for (int iscan = 0; iscan < nscans; iscan++) {
-        SpectrumHeader S = reader->getHead(iscan+1);
-        // S.print();
-        shv.push_back(S);
-    }
-    delete reader;
-
-    return shv;
-}
-*/
 
 ClassReader::ClassReader(const char *filename)
 {
@@ -237,10 +170,11 @@ void ClassReader::trim(unsigned char *input)
     }
 }
 
-time_t ClassReader::obssecond(int mjdn, double utc)
+time_t ClassReader::obssecond(long mjdn, double utc)
 {
-    const long int Jan01of1970 = 40587;
-    double elapsed = 86400.0*(mjdn - Jan01of1970);
+    const long int Jan01of1970 = 40587L;
+    time_t elapsed = static_cast<time_t>(mjdn - Jan01of1970)*86400L;
+    /* utc is in radians, convert to seconds and add */
     elapsed += static_cast<time_t>(floor(utc*3600.0*12.0/M_PI));
 
     return elapsed;
@@ -581,7 +515,7 @@ SpectrumHeader Type1Reader::getHead(int scan)
     double bet = cdesc.bet;
     lam += cdesc.lamof/cos(bet);
     bet += cdesc.betof;
-    time_t datetime = obssecond(centry.xdobs + 60549, cdesc.ut);
+    time_t datetime = obssecond(centry.xdobs + 60549L, cdesc.ut);
     // const char *datetime = obstime(centry.xdobs + 60549, cdesc.ut);
     head.id = scan;
     head.scanno = centry.xscan;
@@ -987,7 +921,7 @@ SpectrumHeader Type2Reader::getHead(int scan)
     double bet = cdesc.bet;
     lam += cdesc.lamof/cos(bet);
     bet += cdesc.betof;
-    time_t datetime = obssecond(centry.xdobs + 60549, cdesc.ut);
+    time_t datetime = obssecond(centry.xdobs + 60549L, cdesc.ut);
     // const char *datetime = obstime(centry.xdobs + 60549, cdesc.ut);
     head.id = scan;
     head.scanno = centry.xscan;
