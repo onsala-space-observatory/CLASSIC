@@ -38,7 +38,7 @@ static PyObject* getHead(Reader* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:getHead", &iscan)) return NULL;
 
     if (iscan < 1 || iscan > self->count) {
-        PyErr_SetString(PyExc_IOError, "scan number out of range");
+        PyErr_SetString(PyExc_IndexError, "scan number out of range");
         return NULL;
     }
     if (self->reader) {
@@ -71,7 +71,7 @@ static PyObject* getFreq(Reader* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:getHead", &iscan)) return NULL;
 
     if (iscan < 1 || iscan > self->count) {
-        PyErr_SetString(PyExc_IOError, "scan number out of range");
+        PyErr_SetString(PyExc_IndexError, "scan number out of range");
         return NULL;
     }
     if (self->reader) {
@@ -98,7 +98,7 @@ static PyObject* getData(Reader* self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:getHead", &iscan)) return NULL;
 
     if (iscan < 1 || iscan > self->count) {
-        PyErr_SetString(PyExc_IOError, "scan number out of range");
+        PyErr_SetString(PyExc_IndexError, "scan number out of range");
         return NULL;
     }
     if (self->reader) {

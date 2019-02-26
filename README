@@ -2,7 +2,7 @@
 
 The CLASSIC data container is a a digital format for single-dish or
 interferometric radio-astronomy data used by the GILDAS software. The
-format is described in the [[https://www.researchgate.net/publication/262378314_IRAM_memo_2013-2_CLASSIC_Data_Container][IRAM Memo 2013-2]], which is also distributed
+format is described in [[https://www.researchgate.net/publication/262378314_IRAM_memo_2013-2_CLASSIC_Data_Container][IRAM Memo 2013-2]], which is also distributed
 with this software.
 
 The software consists of two parts:
