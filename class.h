@@ -1,3 +1,5 @@
+/* Copyright 2019 Michael Olberg <michael.olberg@chalmers.se> */
+
 #ifndef CLASSREADER_H
 #define CLASSREADER_H
 
@@ -11,32 +13,49 @@
 #include <math.h>
 #include <time.h>
 
-struct SpectrumHeader {
-    SpectrumHeader();
-    int id;
-    int scanno;
-    char target[13];
-    char line[13];
-    char instr[13];
-    double RA;
-    double Dec;
-    double fLO;
-    double f0;
-    double df;
-    double vs;
-    double dt;
-    double tsys;
-    time_t utc;
+/**
+ * @file class.h
+ */
 
-    void print();
+/**
+ * @brief The structure representing a spectrum header.
+ * @class SpectrumHeader
+ *
+ * Right now, this holds jsut the bare minimum. This will need to be
+ * filled with additional structure members, if we want more of the
+ * CLASSIC header data to be retrieved.
+ */
+struct SpectrumHeader {
+    SpectrumHeader();     ///< constructor
+
+    int id;               ///< the index of the spectrum in the file, 1..nscans
+    int scanno;           ///< the scan number
+    char target[13];      ///< source name
+    char line[13];        ///< spectral line name, i.e. molecule and transition
+    char instr[13];       ///< frontend/backend designator
+    double RA;            ///< source x-coordinate in decimal degrees
+    double Dec;           ///< source y-coordinate in decimal degrees
+    double fLO;           ///< LO frequency in MHz
+    double f0;            ///< signal frequency in MHz
+    double df;            ///< frequency resolution in MHz
+    double vs;            ///< source LSR velocity
+    double dt;            ///< integration time in seconds
+    double tsys;          ///< system temperature in K
+    time_t utc;           ///< time of observation, seconds since 1970-01-01 00:00 (UTC).
+
+    void print();         ///< print string representation to stdout
 };
 
+/**
+ * @brief Get type of CLASSIC file
+ * 
+ * This will check the first four bytes in a file, in order to determine
+ * the type of CLASSIC file.
+ *
+ * @param filename a string holding the name of a file to check
+ * @return 1 or 2 for file type, or error code (< 1) if unsuccessful
+ */
 int fileType(const char *filename);
-int qcmp(const void *x, const void *y);
-// PyObject* makeFactor(PyObject* str);
-// void makePOSIXct(PyObject* &t);
-// PyObject* makeSpectrum(PyObject* head, PyObject* freq, PyObject* data);
-// PyObject* readClass(PyObject* filename, PyObject* H);
 
 struct ClassDescriptor {
     int xbloc;
@@ -198,15 +217,43 @@ struct ClassSection2 {
 #define BUFSIZE (1024*1024)                  // 1 Mb
 #define MAXCHANNELS (BUFSIZE/sizeof(float))  // 262144
 
+/**
+ * A class to read a CLASSIC file.
+ *
+ * This is the virtual base class, from which the Type1Reader and Type2Reader,
+ * for file types 1 and 2, respectively, will inherit.
+ */ 
 class ClassReader {
  public:
     ClassReader(const char *);
     virtual ~ClassReader();
 
-    virtual int  getDirectory() = 0;
+    /**
+     * Scan the file contents and return number of spectra found.
+     */
+    virtual int getDirectory() = 0;
+    /**
+     * Return header for given spectrum number.
+     *
+     * @param scan number of spectrum (1..nscans)
+     * @return object of type SpectrumHeader
+     */
     virtual SpectrumHeader getHead(int scan) = 0;
+    /**
+     * Return frequency vector for given spectrum number.
+     *
+     * @param scan number of spectrum (1..nscans)
+     * @return vector of doubles
+     */
     virtual std::vector<double> getFreq(int scan) = 0;
+    /**
+     * Return data vector for given spectrum number.
+     *
+     * @param scan number of spectrum (1..nscans)
+     * @return vector of doubles
+     */
     virtual std::vector<double> getData(int scan) = 0;
+
     void dumpRecord();
 
  protected:
@@ -221,7 +268,7 @@ class ClassReader {
     double getDouble();
     void fillHeader(char *obsblock, int code, int addr, int len);
     void trim(unsigned char *ptr);
-    time_t obssecond(int mjdn, double utc);
+    time_t obssecond(long mjdn, double utc);
     double rta(float rad);
     std::vector<double> dataVector(int nchan, float *data);
     std::vector<double> freqVector(int nchan, double f0, double ref, double df);
@@ -238,13 +285,17 @@ class ClassReader {
 
 #define MAXEXT 10
 
+/**
+ * A class to read a CLASSIC file of type 1.
+ *
+ */ 
 class Type1Reader : public ClassReader {
 
  public:
     Type1Reader(const char *);
     ~Type1Reader();
 
-    int  getDirectory();
+    int getDirectory();
     SpectrumHeader getHead(int scan);
     std::vector<double> getFreq(int scan);
     std::vector<double> getData(int scan);
@@ -259,13 +310,17 @@ class Type1Reader : public ClassReader {
     int ext[MAXEXT];
 };
 
+/**
+ * A class to read a CLASSIC file of type 2.
+ *
+ */ 
 class Type2Reader : public ClassReader {
 
  public:
     Type2Reader(const char *);
     ~Type2Reader();
 
-    int  getDirectory();
+    int getDirectory();
     SpectrumHeader getHead(int scan);
     std::vector<double> getFreq(int scan);
     std::vector<double> getData(int scan);
@@ -280,6 +335,12 @@ class Type2Reader : public ClassReader {
     long int ext[MAXEXT];
 };
 
+/**
+ * Open a CLASSIC file and return a suitable reader.
+ *
+ * @param filename a string holding the name of a file to check
+ * @return a pointer to either a Type1Reader or Type2Reader instance.
+ */
 ClassReader *openClassFile(const char *filename);
 
 #endif
