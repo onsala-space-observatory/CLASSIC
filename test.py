@@ -1,11 +1,18 @@
-import matplotlib.pyplot as plt
+import sys
+
+# import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
 import classic
 print(classic.version())
 
-foo = classic.Reader("/home/olberg/R/O-097.F-9401A-2016/O-097.F-9401A-2016/O-097.F-9401A-2016-2016-06-08.apex")
+if len(sys.argv) == 1:
+    print("usage: %s <filename>" % (sys.argv[0]))
+    sys.exit(1)
+
+classfile = sys.argv[1]
+foo = classic.Reader(classfile)
 # attributes
 print(foo.__doc__)
 print(foo.filename)
@@ -27,7 +34,7 @@ iscan = 100
 header = foo.getHead(iscan)
 print(header)
 
-freq = foo.getFreq(iscan)
-data = foo.getData(iscan)
-plt.plot(freq, data, color='b', label='CLASS')
-plt.show()
+# freq = foo.getFreq(iscan)
+# data = foo.getData(iscan)
+# plt.plot(freq, data, color='b', label='CLASS')
+# plt.show()
