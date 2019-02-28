@@ -1,9 +1,8 @@
-* A Python interface to the CLASSIC data container
+# A Python interface to the CLASSIC data container
 
 The CLASSIC data container is a a digital format for single-dish or
 interferometric radio-astronomy data used by the GILDAS software. The
-format is described in [[https://www.researchgate.net/publication/262378314_IRAM_memo_2013-2_CLASSIC_Data_Container][IRAM Memo 2013-2]], which is also distributed
-with this software.
+format is described in [IRAM Memo 2013-2](https://www.researchgate.net/publication/262378314_IRAM_memo_2013-2_CLASSIC_Data_Container), which is also distributed with this software.
 
 The software consists of two parts:
 
@@ -15,11 +14,11 @@ The software consists of two parts:
    via `python3 test.py <filename>`, where <filename> again is a data
    file in CLASS(IC) format.
 
-** Example:
+## Example:
 
-#+BEGIN_SRC
+``` shell
 make classictest
 ./classictest O-097.F-9401A-2016-2016-06-08.apex
 make install
 python3 test.py O-097.F-9401A-2016-2016-06-08.apex
-#+END_SRC
+```
