@@ -8,10 +8,10 @@ The software consists of two parts:
 
  * a C++ interface to the CLASSIC data container format. A small test
    program using it may be built by running `make classictest` and run
-   via `./classictest <filename>`, where <filename> is a data file in
+   via `./classictest <filename>`, where `filename` is a data file in
    CLASS(IC) format.
  * a python interface which can be built by `make install` and tested
-   via `python3 test.py <filename>`, where <filename> again is a data
+   via `python3 test.py <filename>`, where `filename` again is a data
    file in CLASS(IC) format.
 
 ## Example:
